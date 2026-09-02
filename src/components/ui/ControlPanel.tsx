@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { RotateCcw } from 'lucide-react';
 import { DrawingState } from '../../types/drawing';
 
@@ -23,20 +23,27 @@ function Slider({ label, value, min, max, step, unit, disabled, onChange, displa
   const pct = ((value - min) / (max - min)) * 100;
 
   return (
-    <div className={`flex flex-col gap-1.5 ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
+    <div className={`flex flex-col gap-2 ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
       <div className="flex items-center justify-between">
-        <label className="text-[11px] font-medium text-[#7070a0] tracking-wide uppercase">
+        <label className="text-[13px] font-medium text-ink tracking-tight">
           {label}
         </label>
-        <span className="text-[11px] font-mono text-[#9090b8] tabular-nums">
+        <span className="text-[13px] font-normal text-ink-soft tabular-nums">
           {displayValue ?? `${value}${unit}`}
         </span>
       </div>
-      <div className="relative h-1.5 flex items-center">
-        <div className="absolute inset-x-0 h-1.5 rounded-full bg-surface-3" />
+      <div className="relative h-6 flex items-center">
         <div
-          className="absolute left-0 h-1.5 rounded-full bg-accent/60 transition-none"
-          style={{ width: `${pct}%` }}
+          className="absolute inset-x-0 h-2.5 rounded-full bg-white/40"
+          style={{ boxShadow: 'inset 0 1px 2px rgba(120,100,70,0.2), inset 0 -1px 0 rgba(255,255,255,0.6)' }}
+        />
+        <div
+          className="absolute left-0 h-2.5 rounded-full transition-none"
+          style={{
+            width: `${pct}%`,
+            background: 'linear-gradient(180deg, #C8BCA8 0%, #A89880 100%)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+          }}
         />
         <input
           type="range"
@@ -51,10 +58,12 @@ function Slider({ label, value, min, max, step, unit, disabled, onChange, displa
           style={{ margin: 0 }}
         />
         <div
-          className="absolute w-3.5 h-3.5 rounded-full bg-white border border-[rgba(255,255,255,0.3)] shadow-md transition-none"
+          className="absolute w-6 h-6 rounded-full transition-none"
           style={{
-            left: `calc(${pct}% - 7px)`,
+            left: `calc(${pct}% - 12px)`,
             pointerEvents: 'none',
+            background: 'linear-gradient(180deg, #ffffff 0%, #F2EDE4 100%)',
+            boxShadow: '0 3px 8px rgba(120,100,70,0.3), inset 0 1.5px 1px rgba(255,255,255,0.95), inset 0 -1px 2px rgba(168,152,128,0.3)',
           }}
         />
       </div>
@@ -63,6 +72,8 @@ function Slider({ label, value, min, max, step, unit, disabled, onChange, displa
 }
 
 interface Props {
+  open: boolean;
+  onClose: () => void;
   state: DrawingState;
   onOpacityChange: (v: number) => void;
   onBlurChange: (v: number) => void;
@@ -72,6 +83,8 @@ interface Props {
 }
 
 export function ControlPanel({
+  open,
+  onClose,
   state,
   onOpacityChange,
   onBlurChange,
@@ -81,75 +94,111 @@ export function ControlPanel({
 }: Props) {
   const { opacity, blur, scale, rotation, locked } = state;
 
+  const handleDragEnd = useCallback((_: unknown, info: PanInfo) => {
+    if (info.offset.y > 90 || info.velocity.y > 500) {
+      onClose();
+    }
+  }, [onClose]);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="glass rounded-2xl p-4 w-52 flex flex-col gap-4"
-    >
-      <Slider
-        label="Opacity"
-        value={opacity}
-        min={0}
-        max={100}
-        step={1}
-        unit="%"
-        disabled={false}
-        onChange={onOpacityChange}
-      />
-      <Slider
-        label="Blur"
-        value={blur}
-        min={0}
-        max={20}
-        step={0.5}
-        unit="px"
-        disabled={false}
-        onChange={onBlurChange}
-      />
-      <Slider
-        label="Zoom"
-        value={scale}
-        min={0.25}
-        max={3}
-        step={0.01}
-        unit="×"
-        disabled={locked}
-        onChange={onScaleChange}
-        displayValue={`${scale.toFixed(2)}×`}
-      />
-      <Slider
-        label="Rotation"
-        value={rotation}
-        min={-180}
-        max={180}
-        step={1}
-        unit="°"
-        disabled={locked}
-        onChange={onRotationChange}
-        displayValue={`${Math.round(rotation)}°`}
-      />
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Dimmed warm backdrop */}
+          <motion.div
+            key="sheet-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={onClose}
+            className="fixed inset-0 z-40 bg-[rgba(44,36,22,0.18)] pointer-events-auto"
+          />
 
-      <div className="h-px bg-border-subtle" />
+          {/* iOS slide-up sheet */}
+          <motion.div
+            key="sheet"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.4 }}
+            onDragEnd={handleDragEnd}
+            className="glass-strong fixed inset-x-0 bottom-0 z-50 rounded-t-[28px] px-5 pt-3 pb-safe pointer-events-auto"
+            role="dialog"
+            aria-label="Image adjustments"
+          >
+            {/* Grabber handle */}
+            <div className="w-full flex justify-center pb-3 cursor-grab active:cursor-grabbing">
+              <div className="w-10 h-1.5 rounded-full bg-ink-faint/40" />
+            </div>
 
-      <motion.button
-        whileHover={{ scale: locked ? 1 : 1.03 }}
-        whileTap={{ scale: locked ? 1 : 0.96 }}
-        onClick={onReset}
-        disabled={locked}
-        aria-label="Reset transform"
-        className={`
-          flex items-center justify-center gap-2 w-full py-2 rounded-xl text-xs font-medium transition-colors
-          ${locked
-            ? 'opacity-35 cursor-not-allowed text-[#6060a0] bg-surface-3'
-            : 'text-[#a0a0c8] bg-surface-3 hover:bg-surface-4 hover:text-white border border-border-subtle'
-          }
-        `}
-      >
-        <RotateCcw size={12} />
-        Reset transform
-      </motion.button>
-    </motion.div>
+            <h2 className="text-[15px] font-semibold text-ink tracking-tight mb-4">Adjust</h2>
+
+            <div className="flex flex-col gap-5 pb-5">
+              <Slider
+                label="Opacity"
+                value={opacity}
+                min={0}
+                max={100}
+                step={1}
+                unit="%"
+                onChange={onOpacityChange}
+              />
+              <Slider
+                label="Blur"
+                value={blur}
+                min={0}
+                max={20}
+                step={0.5}
+                unit="px"
+                onChange={onBlurChange}
+              />
+              <Slider
+                label="Zoom"
+                value={scale}
+                min={0.25}
+                max={3}
+                step={0.01}
+                unit="×"
+                disabled={locked}
+                onChange={onScaleChange}
+                displayValue={`${scale.toFixed(2)}×`}
+              />
+              <Slider
+                label="Rotation"
+                value={rotation}
+                min={-180}
+                max={180}
+                step={1}
+                unit="°"
+                disabled={locked}
+                onChange={onRotationChange}
+                displayValue={`${Math.round(rotation)}°`}
+              />
+
+              <motion.button
+                whileTap={{ scale: locked ? 1 : 0.97 }}
+                onClick={onReset}
+                disabled={locked}
+                aria-label="Reset transform"
+                className={`
+                  flex items-center justify-center gap-2 w-full min-h-[52px] rounded-2xl text-sm font-medium transition-all
+                  ${locked
+                    ? 'opacity-35 cursor-not-allowed text-ink-faint glass-btn'
+                    : 'text-ink glass-btn hover:brightness-105'
+                  }
+                `}
+              >
+                <RotateCcw size={15} />
+                Reset transform
+              </motion.button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

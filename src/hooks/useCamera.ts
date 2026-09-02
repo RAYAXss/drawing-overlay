@@ -2,11 +2,58 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 
 export type CameraFacing = 'environment' | 'user';
 
+/** Classified reason a camera start failed, so the UI can guide the user. */
+export type CameraErrorKind =
+  | 'denied'        // permission refused by user / system
+  | 'notfound'      // no camera hardware
+  | 'inuse'         // camera busy in another app
+  | 'insecure'      // not served over HTTPS / secure context
+  | 'unsupported'   // getUserMedia not available
+  | 'unknown';
+
+export interface CameraError {
+  kind: CameraErrorKind;
+  message: string;
+}
+
 export interface CameraState {
   active: boolean;
   facing: CameraFacing;
-  error: string | null;
+  error: CameraError | null;
   supported: boolean;
+}
+
+function isSecure(): boolean {
+  if (typeof window === 'undefined') return true;
+  // localhost is treated as secure by browsers
+  return window.isSecureContext === true;
+}
+
+function classifyError(err: unknown): CameraError {
+  if (!isSecure()) {
+    return {
+      kind: 'insecure',
+      message: 'Camera needs a secure (HTTPS) connection.',
+    };
+  }
+
+  const name = (err as { name?: string })?.name ?? '';
+  switch (name) {
+    case 'NotAllowedError':
+    case 'SecurityError':
+      return { kind: 'denied', message: 'Camera access is blocked.' };
+    case 'NotFoundError':
+    case 'OverconstrainedError':
+      return { kind: 'notfound', message: 'No camera found on this device.' };
+    case 'NotReadableError':
+    case 'AbortError':
+      return { kind: 'inuse', message: 'Camera is in use by another app.' };
+    default:
+      return {
+        kind: 'unknown',
+        message: err instanceof Error ? err.message : 'Camera could not start.',
+      };
+  }
 }
 
 export function useCamera() {
@@ -34,6 +81,16 @@ export function useCamera() {
     stopStream();
     setState(prev => ({ ...prev, error: null }));
 
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setState(prev => ({
+        ...prev,
+        active: false,
+        supported: false,
+        error: { kind: isSecure() ? 'unsupported' : 'insecure', message: 'Camera is not available in this browser.' },
+      }));
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -53,8 +110,7 @@ export function useCamera() {
 
       setState({ active: true, facing, error: null, supported: true });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Camera access denied';
-      setState(prev => ({ ...prev, active: false, error: message }));
+      setState(prev => ({ ...prev, active: false, error: classifyError(err) }));
       stopStream();
     }
   }, [stopStream]);
@@ -63,6 +119,10 @@ export function useCamera() {
     stopStream();
     setState(prev => ({ ...prev, active: false, error: null }));
   }, [stopStream]);
+
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
+  }, []);
 
   const toggleFacing = useCallback(async () => {
     const next: CameraFacing = state.facing === 'environment' ? 'user' : 'environment';
@@ -74,5 +134,5 @@ export function useCamera() {
     return () => stopStream();
   }, [stopStream]);
 
-  return { videoRef, state, start, stop, toggleFacing };
+  return { videoRef, state, start, stop, toggleFacing, clearError };
 }
