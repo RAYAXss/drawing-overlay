@@ -15,14 +15,15 @@ import { ControlPanel } from './components/ui/ControlPanel';
 import { Toolbar } from './components/ui/Toolbar';
 import { HelpOverlay } from './components/ui/HelpOverlay';
 import { NotificationToast } from './components/ui/NotificationToast';
+import { CameraErrorToast } from './components/ui/CameraErrorToast';
 import { clamp } from './utils/image';
 
 export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { imageUrl, loadFile, clearImage, notification, showNotification } = useImage();
+  const { imageUrl, loadFile, clearImage, notification } = useImage();
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen();
   const { load: loadSettings, save: saveSettings } = usePersistentSettings();
-  const { videoRef, state: cameraState, start: startCamera, stop: stopCamera, toggleFacing } = useCamera();
+  const { videoRef, state: cameraState, start: startCamera, stop: stopCamera, toggleFacing, clearError: clearCameraError } = useCamera();
 
   const [drawingState, setDrawingState] = useState<DrawingState>(() => {
     const saved = loadSettings();
@@ -31,6 +32,7 @@ export default function App() {
 
   const [showHelp, setShowHelp] = useState(false);
   const [uiManuallyHidden, setUiManuallyHidden] = useState(false);
+  const [showControls, setShowControls] = useState(false);
 
   const hasImage = !!imageUrl;
   const isTracingMode = drawingState.tracingMode;
@@ -52,13 +54,6 @@ export default function App() {
       locked: drawingState.locked,
     });
   }, [drawingState.opacity, drawingState.blur, drawingState.scale, drawingState.rotation, drawingState.position, drawingState.locked, saveSettings]);
-
-  // Show camera error as notification
-  useEffect(() => {
-    if (cameraState.error) {
-      showNotification('Camera access denied or unavailable.', 'error');
-    }
-  }, [cameraState.error, showNotification]);
 
   // --- Transform setters ---
   const setOpacity = useCallback((v: number) => setDrawingState(prev => ({ ...prev, opacity: clamp(v, 0, 100) })), []);
@@ -122,6 +117,12 @@ export default function App() {
     }
   }, [cameraState.active, startCamera, stopCamera, forceShow]);
 
+  const handleCameraRetry = useCallback(() => {
+    startCamera(cameraState.facing);
+    forceShow();
+    setUiManuallyHidden(false);
+  }, [startCamera, cameraState.facing, forceShow]);
+
   useKeyboardShortcuts({
     onLock: toggleLock,
     onFullscreen: toggleFullscreen,
@@ -143,18 +144,41 @@ export default function App() {
 
   return (
     <div
-      className="fixed inset-0 bg-surface-0 overflow-hidden no-select"
+      className="fixed inset-0 bg-sand-200 overflow-hidden no-select"
       onMouseMove={handleInteraction}
     >
-      {/* Dot grid background when empty */}
+      {/* Ruled notebook grid background when empty */}
       {showUploader && (
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-          }}
-        />
+        <>
+          {/* Fine grid — squared paper */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                'linear-gradient(to right, rgba(140,122,98,0.08) 1px, transparent 1px),' +
+                'linear-gradient(to bottom, rgba(140,122,98,0.08) 1px, transparent 1px)',
+              backgroundSize: '28px 28px',
+            }}
+          />
+          {/* Bolder ruled lines every 5 cells */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                'linear-gradient(to right, rgba(140,122,98,0.14) 1px, transparent 1px),' +
+                'linear-gradient(to bottom, rgba(140,122,98,0.14) 1px, transparent 1px)',
+              backgroundSize: '140px 140px',
+            }}
+          />
+          {/* Margin line — like a notebook's red rule, in warm stone */}
+          <div
+            className="absolute inset-y-0 pointer-events-none"
+            style={{
+              left: 'max(32px, env(safe-area-inset-left, 0px))',
+              borderLeft: '1.5px solid rgba(168,120,98,0.18)',
+            }}
+          />
+        </>
       )}
 
       {/* Camera layer — always below image */}
@@ -205,10 +229,11 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+            className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
           >
-            <div className="glass px-4 py-2 rounded-2xl text-xs text-[#8080a8] flex items-center gap-2">
-              <Camera size={13} className="text-accent" />
+            <div className="glass px-4 py-2.5 rounded-2xl text-xs text-ink-soft flex items-center gap-2">
+              <Camera size={14} className="text-accent-hover" />
               Camera active — import an image to overlay it
             </div>
           </motion.div>
@@ -227,21 +252,10 @@ export default function App() {
             className="absolute inset-0 pointer-events-none"
             style={{ zIndex: 2 }}
           >
-            {/* Control panel — only when image is loaded */}
-            {hasImage && (
-              <div className="absolute top-4 right-4 pointer-events-auto">
-                <ControlPanel
-                  state={drawingState}
-                  onOpacityChange={setOpacity}
-                  onBlurChange={setBlur}
-                  onScaleChange={setScale}
-                  onRotationChange={setRotation}
-                  onReset={resetTransform}
-                />
-              </div>
-            )}
-
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-auto">
+            <div
+              className="absolute left-1/2 -translate-x-1/2 pointer-events-auto"
+              style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
+            >
               <Toolbar
                 hasImage={hasImage}
                 locked={drawingState.locked}
@@ -258,6 +272,7 @@ export default function App() {
                 onClose={handleCloseImage}
                 onCameraToggle={handleCameraToggle}
                 onCameraFlip={toggleFacing}
+                onAdjust={() => setShowControls(true)}
               />
             </div>
 
@@ -268,7 +283,8 @@ export default function App() {
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -6 }}
-                  className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 glass rounded-xl text-[11px] font-medium text-[#a0a0c8] pointer-events-none"
+                  className="absolute left-4 flex items-center gap-1.5 px-3 py-2 glass rounded-2xl text-[11px] font-medium text-ink-soft pointer-events-none"
+                  style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                   Locked
@@ -281,7 +297,10 @@ export default function App() {
 
       {/* Toolbar when no content (welcome screen) */}
       {showUploader && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2" style={{ zIndex: 2 }}>
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{ zIndex: 2, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
+        >
           <Toolbar
             hasImage={false}
             locked={false}
@@ -298,6 +317,7 @@ export default function App() {
             onClose={handleCloseImage}
             onCameraToggle={handleCameraToggle}
             onCameraFlip={toggleFacing}
+            onAdjust={() => setShowControls(true)}
           />
         </div>
       )}
@@ -310,13 +330,13 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.2 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none"
-            style={{ zIndex: 2 }}
+            className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+            style={{ zIndex: 2, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
           >
-            <div className="glass px-4 py-2 rounded-2xl text-xs text-[#6060a0] flex items-center gap-2">
+            <div className="glass px-4 py-2.5 rounded-2xl text-xs text-ink-soft flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               Tracing mode —
-              <kbd className="font-mono text-[#8080b0]">Esc</kbd>
+              <kbd className="font-mono text-ink">Esc</kbd>
               to exit
             </div>
           </motion.div>
@@ -324,27 +344,53 @@ export default function App() {
       </AnimatePresence>
 
       {/* Notifications */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+      <div
+        className="absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+      >
         <NotificationToast notification={notification} />
       </div>
 
+      {/* Camera error — guided help + retry */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none flex justify-center"
+        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+      >
+        <CameraErrorToast
+          error={cameraState.error}
+          onRetry={handleCameraRetry}
+          onDismiss={clearCameraError}
+        />
+      </div>
+
+      {/* Image adjustments — iOS slide-up sheet */}
+      <ControlPanel
+        open={showControls && hasImage}
+        onClose={() => setShowControls(false)}
+        state={drawingState}
+        onOpacityChange={setOpacity}
+        onBlurChange={setBlur}
+        onScaleChange={setScale}
+        onRotationChange={setRotation}
+        onReset={resetTransform}
+      />
+
       <HelpOverlay open={showHelp} onClose={() => setShowHelp(false)} />
 
-      {/* Hidden file input when image is active */}
-      {hasImage && (
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/png,image/jpg,image/jpeg,image/webp"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFile(file);
-            e.target.value = '';
-          }}
-          aria-label="File input"
-        />
-      )}
+      {/* Hidden file input — always mounted so upload works in any state
+          (welcome screen, camera-only, or with an image loaded) */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png,image/jpg,image/jpeg,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+          e.target.value = '';
+        }}
+        aria-label="File input"
+      />
     </div>
   );
 }

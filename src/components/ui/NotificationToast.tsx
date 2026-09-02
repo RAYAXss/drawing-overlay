@@ -13,9 +13,15 @@ const icons = {
 };
 
 const colors = {
-  error: 'text-red-400 bg-red-500/10 border-red-500/20',
-  success: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-  info: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+  error: 'text-[#a8442e]',
+  success: 'text-[#4a7c4a]',
+  info: 'text-ink-soft',
+};
+
+const iconColors = {
+  error: 'text-[#c25a3f]',
+  success: 'text-[#5a9a5a]',
+  info: 'text-accent',
 };
 
 export function NotificationToast({ notification }: Props) {
@@ -29,14 +35,13 @@ export function NotificationToast({ notification }: Props) {
           exit={{ opacity: 0, y: -8, scale: 0.97 }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className={`
-            flex items-center gap-2.5 px-4 py-3 rounded-2xl border text-sm font-medium
-            backdrop-blur-md shadow-xl
+            glass flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-medium
             ${colors[notification.type]}
           `}
         >
           {(() => {
             const Icon = icons[notification.type];
-            return <Icon size={15} className="shrink-0" />;
+            return <Icon size={15} className={`shrink-0 ${iconColors[notification.type]}`} />;
           })()}
           <span>{notification.message}</span>
         </motion.div>

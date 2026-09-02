@@ -34,7 +34,7 @@ export function HelpOverlay({ open, onClose }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-[rgba(44,36,22,0.22)] z-40"
             onClick={onClose}
           />
           <motion.div
@@ -45,13 +45,13 @@ export function HelpOverlay({ open, onClose }: Props) {
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className="fixed inset-0 z-50 flex items-center justify-center p-6 pointer-events-none"
           >
-            <div className="glass rounded-2xl p-6 w-full max-w-sm pointer-events-auto shadow-2xl">
+            <div className="glass-strong rounded-[28px] p-6 w-full max-w-sm pointer-events-auto">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-sm font-semibold text-white">Keyboard shortcuts</h2>
+                <h2 className="text-base font-semibold text-ink">Keyboard shortcuts</h2>
                 <button
                   onClick={onClose}
                   aria-label="Close help"
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[#7070a0] hover:text-white hover:bg-surface-3 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-ink-faint hover:text-ink hover:bg-white/50 transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -60,15 +60,15 @@ export function HelpOverlay({ open, onClose }: Props) {
               <div className="space-y-1 mb-5">
                 {SHORTCUTS.map(({ keys, label }) => (
                   <div key={label} className="flex items-center justify-between py-1.5">
-                    <span className="text-xs text-[#8888a8]">{label}</span>
+                    <span className="text-[13px] text-ink-soft">{label}</span>
                     <div className="flex items-center gap-1">
                       {keys.map((k, i) => (
                         <React.Fragment key={k}>
-                          <kbd className="px-2 py-0.5 rounded-md text-[11px] font-mono text-[#a0a0c0] bg-surface-3 border border-border-subtle">
+                          <kbd className="px-2 py-0.5 rounded-lg text-[11px] font-mono text-ink bg-white/60 border border-border-subtle">
                             {k}
                           </kbd>
                           {i < keys.length - 1 && (
-                            <span className="text-[#44445a] text-[10px]">+</span>
+                            <span className="text-ink-faint text-[10px]">+</span>
                           )}
                         </React.Fragment>
                       ))}
@@ -79,12 +79,12 @@ export function HelpOverlay({ open, onClose }: Props) {
 
               <div className="h-px bg-border-subtle mb-4" />
 
-              <p className="text-[11px] font-medium text-[#5a5a78] uppercase tracking-wide mb-2">Touch gestures</p>
+              <p className="text-[11px] font-medium text-ink-faint tracking-wide mb-2">Touch gestures</p>
               <div className="space-y-1">
                 {GESTURES.map(({ gesture, label }) => (
                   <div key={label} className="flex items-center justify-between py-1">
-                    <span className="text-xs text-[#8888a8]">{label}</span>
-                    <span className="text-[11px] text-[#5a5a78] font-mono">{gesture}</span>
+                    <span className="text-[13px] text-ink-soft">{label}</span>
+                    <span className="text-[11px] text-ink-faint font-mono">{gesture}</span>
                   </div>
                 ))}
               </div>
