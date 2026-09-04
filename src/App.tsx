@@ -1,10 +1,9 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera } from 'lucide-react';
+import { Camera, EyeOff } from 'lucide-react';
 import { DrawingState, DEFAULT_STATE, Position } from './types/drawing';
 import { useImage } from './hooks/useImage';
 import { useFullscreen } from './hooks/useFullscreen';
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useAutoHideUI } from './hooks/useAutoHideUI';
 import { usePersistentSettings } from './hooks/usePersistentSettings';
 import { useCamera } from './hooks/useCamera';
@@ -13,7 +12,6 @@ import { ImageCanvas } from './components/ui/ImageCanvas';
 import { CameraBackground } from './components/ui/CameraBackground';
 import { ControlPanel } from './components/ui/ControlPanel';
 import { Toolbar } from './components/ui/Toolbar';
-import { HelpOverlay } from './components/ui/HelpOverlay';
 import { NotificationToast } from './components/ui/NotificationToast';
 import { CameraErrorToast } from './components/ui/CameraErrorToast';
 import { clamp } from './utils/image';
@@ -30,7 +28,6 @@ export default function App() {
     return { ...DEFAULT_STATE, ...saved };
   });
 
-  const [showHelp, setShowHelp] = useState(false);
   const [uiManuallyHidden, setUiManuallyHidden] = useState(false);
   const [showControls, setShowControls] = useState(false);
 
@@ -84,14 +81,6 @@ export default function App() {
 
   const handleOpenFile = useCallback(() => fileInputRef.current?.click(), []);
 
-  const handleToggleUI = useCallback(() => {
-    if (isTracingMode) return;
-    setUiManuallyHidden(prev => {
-      if (prev) { showUI(); return false; }
-      return true;
-    });
-  }, [isTracingMode, showUI]);
-
   const handleCloseImage = useCallback(() => {
     clearImage();
     setDrawingState(prev => ({ ...prev, tracingMode: false }));
@@ -122,17 +111,6 @@ export default function App() {
     forceShow();
     setUiManuallyHidden(false);
   }, [startCamera, cameraState.facing, forceShow]);
-
-  useKeyboardShortcuts({
-    onLock: toggleLock,
-    onFullscreen: toggleFullscreen,
-    onReset: resetTransform,
-    onExitTracing: exitTracing,
-    onOpenFile: handleOpenFile,
-    onToggleUI: handleToggleUI,
-    onCameraToggle: handleCameraToggle,
-    tracingMode: isTracingMode,
-  });
 
   const effectiveUIVisible = uiVisible && !uiManuallyHidden && !isTracingMode;
 
@@ -261,14 +239,12 @@ export default function App() {
                 locked={drawingState.locked}
                 tracingMode={drawingState.tracingMode}
                 isFullscreen={isFullscreen}
-                showHelp={showHelp}
                 cameraActive={cameraState.active}
                 cameraSupported={cameraState.supported}
                 onUpload={handleOpenFile}
                 onLock={toggleLock}
                 onTracing={toggleTracing}
                 onFullscreen={toggleFullscreen}
-                onHelp={() => setShowHelp(v => !v)}
                 onClose={handleCloseImage}
                 onCameraToggle={handleCameraToggle}
                 onCameraFlip={toggleFacing}
@@ -306,14 +282,12 @@ export default function App() {
             locked={false}
             tracingMode={false}
             isFullscreen={isFullscreen}
-            showHelp={showHelp}
             cameraActive={cameraState.active}
             cameraSupported={cameraState.supported}
             onUpload={handleOpenFile}
             onLock={toggleLock}
             onTracing={toggleTracing}
             onFullscreen={toggleFullscreen}
-            onHelp={() => setShowHelp(v => !v)}
             onClose={handleCloseImage}
             onCameraToggle={handleCameraToggle}
             onCameraFlip={toggleFacing}
@@ -322,7 +296,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Tracing mode hint */}
+      {/* Tracing mode — tappable exit button */}
       <AnimatePresence>
         {isTracingMode && (
           <motion.div
@@ -330,15 +304,17 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+            className="absolute left-1/2 -translate-x-1/2"
             style={{ zIndex: 2, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
           >
-            <div className="glass px-4 py-2.5 rounded-2xl text-xs text-ink-soft flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-              Tracing mode —
-              <kbd className="font-mono text-ink">Esc</kbd>
-              to exit
-            </div>
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              onClick={exitTracing}
+              className="glass px-5 h-[52px] rounded-2xl text-sm font-medium text-ink flex items-center gap-2.5"
+            >
+              <EyeOff size={18} className="text-accent-hover" />
+              Exit tracing
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -375,7 +351,7 @@ export default function App() {
         onReset={resetTransform}
       />
 
-      <HelpOverlay open={showHelp} onClose={() => setShowHelp(false)} />
+
 
       {/* Hidden file input — always mounted so upload works in any state
           (welcome screen, camera-only, or with an image loaded) */}

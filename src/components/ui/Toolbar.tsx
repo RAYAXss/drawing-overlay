@@ -8,7 +8,6 @@ import {
   Minimize,
   Eye,
   EyeOff,
-  HelpCircle,
   X,
   Camera,
   CameraOff,
@@ -34,7 +33,7 @@ function ToolbarBtn({ onClick, label, children, active, danger, disabled }: Tool
       aria-label={label}
       title={label}
       className={`
-        relative w-[52px] h-[52px] rounded-2xl flex items-center justify-center transition-all duration-200
+        relative w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center transition-all duration-200
         focus-visible:ring-2 ring-accent ring-offset-2 ring-offset-transparent
         ${disabled ? 'opacity-35 cursor-not-allowed' : ''}
         ${active
@@ -50,19 +49,21 @@ function ToolbarBtn({ onClick, label, children, active, danger, disabled }: Tool
   );
 }
 
+function Divider() {
+  return <div className="w-px h-6 shrink-0 bg-border-subtle mx-0.5" />;
+}
+
 interface Props {
   hasImage: boolean;
   locked: boolean;
   tracingMode: boolean;
   isFullscreen: boolean;
-  showHelp: boolean;
   cameraActive: boolean;
   cameraSupported: boolean;
   onUpload: () => void;
   onLock: () => void;
   onTracing: () => void;
   onFullscreen: () => void;
-  onHelp: () => void;
   onClose: () => void;
   onCameraToggle: () => void;
   onCameraFlip: () => void;
@@ -74,14 +75,12 @@ export function Toolbar({
   locked,
   tracingMode,
   isFullscreen,
-  showHelp,
   cameraActive,
   cameraSupported,
   onUpload,
   onLock,
   onTracing,
   onFullscreen,
-  onHelp,
   onClose,
   onCameraToggle,
   onCameraFlip,
@@ -93,76 +92,72 @@ export function Toolbar({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 12, scale: 0.97 }}
       transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-      className="glass rounded-[28px] px-2 py-2 flex items-center gap-1"
+      className="glass rounded-[24px] px-1.5 py-1.5 flex items-center gap-0.5 max-w-[calc(100vw-24px)] overflow-x-auto no-scrollbar"
     >
       {/* Camera */}
       {cameraSupported && (
         <>
           <ToolbarBtn
             onClick={onCameraToggle}
-            label={cameraActive ? 'Stop camera' : 'Start camera (C)'}
+            label={cameraActive ? 'Stop camera' : 'Start camera'}
             active={cameraActive}
           >
-            {cameraActive ? <CameraOff size={20} /> : <Camera size={20} />}
+            {cameraActive ? <CameraOff size={19} /> : <Camera size={19} />}
           </ToolbarBtn>
 
           {cameraActive && (
             <ToolbarBtn onClick={onCameraFlip} label="Flip camera">
-              <FlipHorizontal size={20} />
+              <FlipHorizontal size={19} />
             </ToolbarBtn>
           )}
 
-          <div className="w-px h-6 bg-border-subtle mx-0.5" />
+          <Divider />
         </>
       )}
 
-      <ToolbarBtn onClick={onUpload} label="Upload image (Ctrl+O)">
-        <Upload size={20} />
+      <ToolbarBtn onClick={onUpload} label="Upload image">
+        <Upload size={19} />
       </ToolbarBtn>
 
       {hasImage && (
         <>
           <ToolbarBtn onClick={onAdjust} label="Adjust image">
-            <SlidersHorizontal size={20} />
+            <SlidersHorizontal size={19} />
           </ToolbarBtn>
 
-          <div className="w-px h-6 bg-border-subtle mx-0.5" />
+          <Divider />
 
           <ToolbarBtn
             onClick={onLock}
-            label={locked ? 'Unlock (L)' : 'Lock (L)'}
+            label={locked ? 'Unlock' : 'Lock'}
             active={locked}
           >
-            {locked ? <Lock size={20} /> : <Unlock size={20} />}
+            {locked ? <Lock size={19} /> : <Unlock size={19} />}
           </ToolbarBtn>
 
           <ToolbarBtn
             onClick={onTracing}
-            label={tracingMode ? 'Exit tracing (Esc)' : 'Tracing mode'}
+            label={tracingMode ? 'Exit tracing' : 'Tracing mode'}
             active={tracingMode}
           >
-            {tracingMode ? <EyeOff size={20} /> : <Eye size={20} />}
+            {tracingMode ? <EyeOff size={19} /> : <Eye size={19} />}
           </ToolbarBtn>
 
-          <div className="w-px h-6 bg-border-subtle mx-0.5" />
+          <Divider />
 
           <ToolbarBtn onClick={onClose} label="Close image" danger>
-            <X size={20} />
+            <X size={19} />
           </ToolbarBtn>
         </>
       )}
 
-      <div className="w-px h-6 bg-border-subtle mx-0.5" />
+      <Divider />
 
       <ToolbarBtn
         onClick={onFullscreen}
-        label={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
+        label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
       >
-        {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
-      </ToolbarBtn>
-
-      <ToolbarBtn onClick={onHelp} label="Keyboard shortcuts" active={showHelp}>
-        <HelpCircle size={20} />
+        {isFullscreen ? <Minimize size={19} /> : <Maximize size={19} />}
       </ToolbarBtn>
     </motion.div>
   );

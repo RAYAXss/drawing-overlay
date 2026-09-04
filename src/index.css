@@ -8,6 +8,9 @@
   }
 
   :root {
+    /* Always render in light mode regardless of OS/browser dark preference */
+    color-scheme: light only;
+
     /* Warm paper atmosphere */
     --sand-bg: #F2EDE4;
     --sand-bg-soft: #F7F3EC;
@@ -37,6 +40,8 @@
     overflow: hidden;
     background: var(--sand-bg);
     color: var(--ink);
+    color-scheme: light only;
+    forced-color-adjust: none;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, 'Segoe UI', sans-serif;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
@@ -166,6 +171,14 @@
   .no-select {
     -webkit-user-select: none;
     user-select: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 
   .touch-none {

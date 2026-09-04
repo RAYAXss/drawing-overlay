@@ -126,18 +126,16 @@ export function ControlPanel({
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.4 }}
             onDragEnd={handleDragEnd}
-            className="glass-strong fixed inset-x-0 bottom-0 z-50 rounded-t-[28px] px-5 pt-3 pb-safe pointer-events-auto"
+            className="glass-strong fixed inset-x-0 bottom-0 z-50 rounded-t-[24px] px-4 pt-2 pb-safe pointer-events-auto"
             role="dialog"
             aria-label="Image adjustments"
           >
             {/* Grabber handle */}
-            <div className="w-full flex justify-center pb-3 cursor-grab active:cursor-grabbing">
-              <div className="w-10 h-1.5 rounded-full bg-ink-faint/40" />
+            <div className="w-full flex justify-center py-2 cursor-grab active:cursor-grabbing">
+              <div className="w-9 h-1.5 rounded-full bg-ink-faint/40" />
             </div>
 
-            <h2 className="text-[15px] font-semibold text-ink tracking-tight mb-4">Adjust</h2>
-
-            <div className="flex flex-col gap-5 pb-5">
+            <div className="flex flex-col gap-3.5 pb-3">
               <Slider
                 label="Opacity"
                 value={opacity}
@@ -185,7 +183,7 @@ export function ControlPanel({
                 disabled={locked}
                 aria-label="Reset transform"
                 className={`
-                  flex items-center justify-center gap-2 w-full min-h-[52px] rounded-2xl text-sm font-medium transition-all
+                  flex items-center justify-center gap-2 w-full min-h-[48px] rounded-2xl text-sm font-medium transition-all mt-0.5
                   ${locked
                     ? 'opacity-35 cursor-not-allowed text-ink-faint glass-btn'
                     : 'text-ink glass-btn hover:brightness-105'
