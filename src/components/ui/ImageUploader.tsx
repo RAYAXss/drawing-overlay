@@ -119,16 +119,6 @@ export function ImageUploader({ onFile, fileInputRef }: Props) {
         </div>
       </motion.div>
 
-      {/* Keyboard hint */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="mt-6 text-[11px] text-ink-faint"
-      >
-        <kbd className="font-mono bg-white/50 border border-border-subtle px-1.5 py-0.5 rounded text-ink-soft">Ctrl+O</kbd>
-        {' '}to open
-      </motion.p>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export interface PersistableSettings {
 export const DEFAULT_STATE: DrawingState = {
   image: null,
   opacity: 55,
-  blur: 2,
+  blur: 0,
   scale: 1,
   rotation: 0,
   position: { x: 0, y: 0 },
@@ -38,7 +38,7 @@ export const DEFAULT_STATE: DrawingState = {
 
 export const DEFAULT_PERSISTABLE: PersistableSettings = {
   opacity: 55,
-  blur: 2,
+  blur: 0,
   scale: 1,
   rotation: 0,
   position: { x: 0, y: 0 },
