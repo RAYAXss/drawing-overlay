@@ -77,6 +77,7 @@ export function useCamera() {
     }
   }, []);
 
+  // Improved camera start function with better error handling
   const start = useCallback(async (facing: CameraFacing = 'environment') => {
     stopStream();
     setState(prev => ({ ...prev, error: null }));
@@ -92,14 +93,48 @@ export function useCamera() {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      // Try multiple approaches for better compatibility with rear camera
+      let constraints: MediaStreamConstraints = {
         video: {
           facingMode: { ideal: facing },
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
         audio: false,
-      });
+      };
+
+      // If it's the environment (rear) camera, try specific constraint first
+      if (facing === 'environment') {
+        // Try with exact facing mode as a fallback for rear camera issues on some devices
+        const exactConstraints = {
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+          audio: false,
+        };
+
+        try {
+          // Try the more specific constraint first for rear camera
+          const stream = await navigator.mediaDevices.getUserMedia(exactConstraints);
+          streamRef.current = stream;
+
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            await videoRef.current.play();
+          }
+
+          setState({ active: true, facing, error: null, supported: true });
+          return;
+        } catch (exactError) {
+          // If specific constraint fails, fall back to generic one
+          console.warn('Rear camera failed with exact constraint. Trying generic.', exactError);
+        }
+      }
+
+      // Fall back to generic approach if we haven't succeeded yet
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       streamRef.current = stream;
 
