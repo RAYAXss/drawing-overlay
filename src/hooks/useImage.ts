@@ -1,5 +1,12 @@
 import { useState, useCallback, useRef } from 'react';
-import { isValidImageType, createObjectURL, revokeObjectURL } from '../utils/image';
+import {
+  isValidImageType,
+  isWithinSizeLimit,
+  hasValidImageSignature,
+  createObjectURL,
+  revokeObjectURL,
+  MAX_IMAGE_BYTES,
+} from '../utils/image';
 import { Notification } from '../types/drawing';
 
 export function useImage() {
@@ -13,9 +20,22 @@ export function useImage() {
     setTimeout(() => setNotification(null), 3500);
   }, []);
 
-  const loadFile = useCallback((file: File) => {
+  const loadFile = useCallback(async (file: File): Promise<boolean> => {
     if (!isValidImageType(file)) {
       showNotification('Unsupported format. Please use PNG, JPG, or WEBP.');
+      return false;
+    }
+
+    if (!isWithinSizeLimit(file)) {
+      const mb = Math.round(MAX_IMAGE_BYTES / (1024 * 1024));
+      showNotification(`Image is too large. Maximum size is ${mb} MB.`);
+      return false;
+    }
+
+    // Verify real content, not just the reported MIME type.
+    const genuine = await hasValidImageSignature(file);
+    if (!genuine) {
+      showNotification('This file does not appear to be a valid image.');
       return false;
     }
 

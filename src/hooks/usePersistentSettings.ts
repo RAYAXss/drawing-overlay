@@ -11,7 +11,6 @@ export function usePersistentSettings() {
       const parsed = JSON.parse(raw) as Partial<PersistableSettings>;
       return {
         opacity: parsed.opacity ?? DEFAULT_PERSISTABLE.opacity,
-        blur: parsed.blur ?? DEFAULT_PERSISTABLE.blur,
         scale: parsed.scale ?? DEFAULT_PERSISTABLE.scale,
         rotation: parsed.rotation ?? DEFAULT_PERSISTABLE.rotation,
         position: parsed.position ?? DEFAULT_PERSISTABLE.position,

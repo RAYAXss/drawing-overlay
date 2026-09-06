@@ -126,7 +126,7 @@ export function ImageCanvas({
     return () => el.removeEventListener('wheel', handleWheel);
   }, [handleWheel]);
 
-  const { image, opacity, blur, scale, rotation, position } = state;
+  const { image, opacity, scale, rotation, position } = state;
   if (!image) return null;
 
   const transform = `translate3d(${position.x}px, ${position.y}px, 0) scale(${scale}) rotate(${rotation}deg)`;
@@ -152,12 +152,11 @@ export function ImageCanvas({
           style={{
             transform,
             opacity: opacity / 100,
-            filter: blur > 0 ? `blur(${blur}px)` : 'none',
             maxWidth: '100vw',
             maxHeight: '100vh',
             objectFit: 'contain',
             willChange: 'transform',
-            transition: 'opacity 0.15s ease, filter 0.15s ease',
+            transition: 'opacity 0.15s ease',
           }}
         />
       </div>

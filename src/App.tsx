@@ -10,6 +10,7 @@ import { useCamera } from './hooks/useCamera';
 import { ImageUploader } from './components/ui/ImageUploader';
 import { ImageCanvas } from './components/ui/ImageCanvas';
 import { CameraBackground } from './components/ui/CameraBackground';
+import { CameraControls } from './components/ui/CameraControls';
 import { ControlPanel } from './components/ui/ControlPanel';
 import { Toolbar } from './components/ui/Toolbar';
 import { NotificationToast } from './components/ui/NotificationToast';
@@ -21,7 +22,16 @@ export default function App() {
   const { imageUrl, loadFile, clearImage, notification } = useImage();
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen();
   const { load: loadSettings, save: saveSettings } = usePersistentSettings();
-  const { videoRef, state: cameraState, start: startCamera, stop: stopCamera, toggleFacing, clearError: clearCameraError } = useCamera();
+  const {
+    videoRef,
+    state: cameraState,
+    start: startCamera,
+    stop: stopCamera,
+    toggleFacing,
+    clearError: clearCameraError,
+    setZoom: setCameraZoom,
+    toggleFocusLock,
+  } = useCamera();
 
   const [drawingState, setDrawingState] = useState<DrawingState>(() => {
     const saved = loadSettings();
@@ -44,17 +54,15 @@ export default function App() {
   useEffect(() => {
     saveSettings({
       opacity: drawingState.opacity,
-      blur: drawingState.blur,
       scale: drawingState.scale,
       rotation: drawingState.rotation,
       position: drawingState.position,
       locked: drawingState.locked,
     });
-  }, [drawingState.opacity, drawingState.blur, drawingState.scale, drawingState.rotation, drawingState.position, drawingState.locked, saveSettings]);
+  }, [drawingState.opacity, drawingState.scale, drawingState.rotation, drawingState.position, drawingState.locked, saveSettings]);
 
   // --- Transform setters ---
   const setOpacity = useCallback((v: number) => setDrawingState(prev => ({ ...prev, opacity: clamp(v, 0, 100) })), []);
-  const setBlur = useCallback((v: number) => setDrawingState(prev => ({ ...prev, blur: clamp(v, 0, 20) })), []);
   const setScale = useCallback((v: number) => setDrawingState(prev => ({ ...prev, scale: clamp(v, 0.25, 3) })), []);
   const setRotation = useCallback((v: number) => setDrawingState(prev => ({ ...prev, rotation: Math.max(-180, Math.min(180, v)) })), []);
   const setPosition = useCallback((pos: Position) => setDrawingState(prev => ({ ...prev, position: pos })), []);
@@ -87,8 +95,8 @@ export default function App() {
     forceShow();
   }, [clearImage, forceShow]);
 
-  const handleFile = useCallback((file: File) => {
-    const ok = loadFile(file);
+  const handleFile = useCallback(async (file: File) => {
+    const ok = await loadFile(file);
     if (ok) {
       forceShow();
       setUiManuallyHidden(false);
@@ -111,6 +119,16 @@ export default function App() {
     forceShow();
     setUiManuallyHidden(false);
   }, [startCamera, cameraState.facing, forceShow]);
+
+  const handleCameraZoom = useCallback((factor: number) => {
+    setCameraZoom(factor);
+    showUI();
+  }, [setCameraZoom, showUI]);
+
+  const handleFocusLock = useCallback(() => {
+    toggleFocusLock();
+    showUI();
+  }, [toggleFocusLock, showUI]);
 
   const effectiveUIVisible = uiVisible && !uiManuallyHidden && !isTracingMode;
 
@@ -164,6 +182,8 @@ export default function App() {
         videoRef={videoRef}
         active={cameraState.active}
         facing={cameraState.facing}
+        zoom={cameraState.zoom}
+        capabilities={cameraState.capabilities}
       />
 
       {/* Welcome / upload screen — only when no camera and no image */}
@@ -231,9 +251,18 @@ export default function App() {
             style={{ zIndex: 2 }}
           >
             <div
-              className="absolute left-1/2 -translate-x-1/2 pointer-events-auto"
+              className="absolute left-1/2 -translate-x-1/2 pointer-events-auto flex flex-col items-center gap-2 w-full max-w-[calc(100vw-24px)] px-3"
               style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
             >
+              {cameraState.active && (
+                <CameraControls
+                  zoom={cameraState.zoom}
+                  focusLocked={cameraState.focusLocked}
+                  capabilities={cameraState.capabilities}
+                  onZoom={handleCameraZoom}
+                  onToggleFocusLock={handleFocusLock}
+                />
+              )}
               <Toolbar
                 hasImage={hasImage}
                 locked={drawingState.locked}
@@ -345,7 +374,6 @@ export default function App() {
         onClose={() => setShowControls(false)}
         state={drawingState}
         onOpacityChange={setOpacity}
-        onBlurChange={setBlur}
         onScaleChange={setScale}
         onRotationChange={setRotation}
         onReset={resetTransform}
