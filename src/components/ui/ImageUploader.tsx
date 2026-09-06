@@ -63,7 +63,7 @@ export function ImageUploader({ onFile, fileInputRef }: Props) {
           <h1 className="text-2xl font-light tracking-tight text-ink">Drawing Overlay</h1>
         </div>
         <p className="text-ink-soft text-sm leading-relaxed max-w-xs mx-auto font-light">
-          Import an image, adjust opacity and blur, then use your screen as a transparent reference layer for tracing.
+          Import an image, adjust its opacity, then use your screen as a transparent reference layer for tracing.
         </p>
       </motion.div>
 
