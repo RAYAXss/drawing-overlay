@@ -140,7 +140,7 @@ export default function App() {
 
   return (
     <div
-      className="fixed inset-0 bg-sand-200 overflow-hidden no-select"
+      className="fixed inset-0 bg-paper-200 overflow-hidden no-select"
       onMouseMove={handleInteraction}
     >
       {/* Ruled notebook grid background when empty */}
@@ -230,7 +230,7 @@ export default function App() {
             className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none"
             style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
           >
-            <div className="glass px-4 py-2.5 rounded-2xl text-xs text-ink-soft flex items-center gap-2">
+            <div className="paper-card px-4 py-2.5 rounded-2xl text-xs text-ink-soft flex items-center gap-2">
               <Camera size={14} className="text-accent-hover" />
               Camera active — import an image to overlay it
             </div>
@@ -251,8 +251,8 @@ export default function App() {
             style={{ zIndex: 2 }}
           >
             <div
-              className="absolute left-1/2 -translate-x-1/2 pointer-events-auto flex flex-col items-center gap-2 w-full max-w-[calc(100vw-24px)] px-3"
-              style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
+              className="absolute left-1/2 -translate-x-1/2 pointer-events-auto flex flex-col items-center gap-2.5 w-full max-w-[calc(100vw-16px)] px-2"
+              style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
             >
               {cameraState.active && (
                 <CameraControls
@@ -288,7 +288,7 @@ export default function App() {
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -6 }}
-                  className="absolute left-4 flex items-center gap-1.5 px-3 py-2 glass rounded-2xl text-[11px] font-medium text-ink-soft pointer-events-none"
+                  className="absolute left-4 flex items-center gap-1.5 px-3 py-2 paper-card rounded-2xl text-[11px] font-medium text-ink-soft pointer-events-none"
                   style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
@@ -339,7 +339,7 @@ export default function App() {
             <motion.button
               whileTap={{ scale: 0.96 }}
               onClick={exitTracing}
-              className="glass px-5 h-[52px] rounded-2xl text-sm font-medium text-ink flex items-center gap-2.5"
+              className="paper-card px-5 h-[52px] rounded-2xl text-sm font-medium text-ink flex items-center gap-2.5"
             >
               <EyeOff size={18} className="text-accent-hover" />
               Exit tracing

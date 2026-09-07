@@ -10,7 +10,10 @@ interface Props {
 }
 
 export function CameraBackground({ videoRef, active, facing, zoom, capabilities }: Props) {
-  if (!active) return null;
+  // NOTE: the <video> is ALWAYS mounted (even when inactive) so the stream-
+  // binding effect in useCamera always has an element to attach to. Hiding it
+  // via opacity/visibility avoids the first-start black screen that happened
+  // when the element was conditionally unmounted.
 
   // When the device handles zoom natively, the pixels are already zoomed by
   // the sensor — don't double-apply. Otherwise emulate zoom with a CSS scale.
@@ -34,8 +37,11 @@ export function CameraBackground({ videoRef, active, facing, zoom, capabilities 
         objectFit: 'cover',
         transform: `scaleX(${mirror}) scale(${cssZoom})`,
         transformOrigin: 'center center',
-        transition: 'transform 0.2s ease',
+        transition: 'transform 0.2s ease, opacity 0.25s ease',
         pointerEvents: 'none',
+        opacity: active ? 1 : 0,
+        visibility: active ? 'visible' : 'hidden',
+        backgroundColor: '#000',
         zIndex: 0,
       }}
     />

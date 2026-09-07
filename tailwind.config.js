@@ -4,39 +4,45 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Warm paper-craft sheet scale
+        paper: {
+          50:  '#FDFBF6',
+          100: '#FBF7EF',
+          200: '#F4EFE6',
+          300: '#EDE7DA',
+          400: '#E9E2D4',
+          500: '#D8CDB9',
+          600: '#BBAB90',
+          700: '#8B7A60',
+          800: '#6E6048',
+          900: '#2E2717',
+        },
+        // Legacy alias kept so existing `sand-*` usages don't break
         sand: {
-          50:  '#FDFAF5',
-          100: '#F7F3EC',
-          200: '#F2EDE4',
-          300: '#EDE8DF',
-          400: '#DDD6C8',
-          500: '#C8BCA8',
-          600: '#A89880',
-          700: '#8C7A62',
-          800: '#6B5C45',
-          900: '#2C2416',
+          50:  '#FDFBF6',
+          100: '#FBF7EF',
+          200: '#F4EFE6',
+          300: '#EDE7DA',
+          400: '#E9E2D4',
+          500: '#D8CDB9',
+          600: '#BBAB90',
+          700: '#8B7A60',
+          800: '#6E6048',
+          900: '#2E2717',
         },
         ink: {
-          DEFAULT: '#2C2416',
-          soft: '#6B5C45',
-          faint: '#A89880',
+          DEFAULT: '#2E2717',
+          soft: '#6E6048',
+          faint: '#A99A80',
         },
         accent: {
-          DEFAULT: '#A89880',
-          light: '#C8BCA8',
-          hover: '#8C7A62',
-          muted: 'rgba(140,122,98,0.14)',
-        },
-        // Light "surface" scale used across components
-        surface: {
-          0: '#F2EDE4',
-          1: 'rgba(255,255,255,0.35)',
-          2: 'rgba(255,255,255,0.45)',
-          3: 'rgba(255,255,255,0.6)',
-          4: 'rgba(255,255,255,0.78)',
+          DEFAULT: '#B08968',
+          light: '#C9A987',
+          hover: '#8B6B4E',
+          muted: 'rgba(176,137,104,0.14)',
         },
         border: {
-          subtle: 'rgba(140,122,98,0.18)',
+          subtle: 'rgba(120,100,70,0.16)',
         },
       },
       fontFamily: {
@@ -47,6 +53,18 @@ export default {
         normal: '400',
         medium: '500',
         semibold: '600',
+      },
+      keyframes: {
+        'float-slow': {
+          '0%, 100%': { transform: 'translateY(0) rotate(var(--tw-rotate, 0deg))' },
+          '50%': { transform: 'translateY(-10px) rotate(var(--tw-rotate, 0deg))' },
+        },
+        'draw-dash': {
+          to: { strokeDashoffset: '0' },
+        },
+      },
+      animation: {
+        'float-slow': 'float-slow 6s ease-in-out infinite',
       },
     },
   },

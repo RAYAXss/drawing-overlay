@@ -107,11 +107,11 @@ export function CameraErrorToast({ error, onRetry, onDismiss }: Props) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.97 }}
           transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="glass w-[min(88vw,360px)] rounded-3xl p-4 text-ink pointer-events-auto"
+          className="paper-card-strong w-[min(88vw,360px)] rounded-3xl p-4 text-ink pointer-events-auto"
           role="alert"
         >
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 w-9 h-9 shrink-0 rounded-2xl glass-btn flex items-center justify-center">
+            <div className="mt-0.5 w-9 h-9 shrink-0 rounded-2xl bg-accent-muted flex items-center justify-center">
               <CameraOff size={18} className="text-accent-hover" />
             </div>
 
@@ -167,7 +167,7 @@ export function CameraErrorToast({ error, onRetry, onDismiss }: Props) {
             onClick={onRetry}
             className="mt-3 w-full h-11 rounded-2xl text-white text-sm font-medium flex items-center justify-center gap-2 transition-all hover:brightness-105"
             style={{
-              background: 'linear-gradient(180deg, #B7A88E 0%, #8C7A62 100%)',
+              background: 'linear-gradient(180deg, #C9A987 0%, #8B6B4E 100%)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 3px rgba(80,64,40,0.3), 0 6px 16px -6px rgba(120,100,70,0.45)',
             }}
           >
