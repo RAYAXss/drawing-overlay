@@ -37,10 +37,10 @@ function ToolbarBtn({ onClick, label, children, active, danger, disabled }: Tool
         focus-visible:ring-2 ring-accent ring-offset-2 ring-offset-transparent
         ${disabled ? 'opacity-35 cursor-not-allowed' : ''}
         ${active
-          ? 'glass-btn-active text-accent-hover'
+          ? 'paper-btn-active text-accent-hover'
           : danger
-            ? 'text-[#b3573f] hover:glass-btn hover:text-[#9e4a34]'
-            : 'text-ink-soft hover:glass-btn hover:text-ink'
+            ? 'text-[#b3573f] paper-btn hover:text-[#9e4a34]'
+            : 'text-ink-soft paper-btn hover:text-ink'
         }
       `}
     >
@@ -92,7 +92,7 @@ export function Toolbar({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 12, scale: 0.97 }}
       transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-      className="glass rounded-[24px] px-1.5 py-1.5 flex items-center gap-0.5 max-w-[calc(100vw-24px)] overflow-x-auto no-scrollbar"
+      className="paper-card rounded-[24px] px-1.5 py-1.5 flex items-center gap-0.5 max-w-[calc(100vw-24px)] overflow-x-auto no-scrollbar"
     >
       {/* Camera */}
       {cameraSupported && (

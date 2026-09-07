@@ -35,7 +35,7 @@ export function NotificationToast({ notification }: Props) {
           exit={{ opacity: 0, y: -8, scale: 0.97 }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className={`
-            glass flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-medium
+            paper-card flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-medium
             ${colors[notification.type]}
           `}
         >

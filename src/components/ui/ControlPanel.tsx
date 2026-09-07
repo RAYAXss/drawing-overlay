@@ -50,7 +50,7 @@ function Slider({
           {icon && <span className="text-accent-hover">{icon}</span>}
           {label}
         </label>
-        <span className="text-[13px] font-semibold text-ink-soft tabular-nums px-2 py-0.5 rounded-lg bg-white/45">
+        <span className="text-[13px] font-semibold text-ink-soft tabular-nums px-2 py-0.5 rounded-lg bg-paper-200 border border-border-subtle">
           {displayValue}
         </span>
       </div>
@@ -60,15 +60,15 @@ function Slider({
           <button
             onClick={() => onStep(-1)}
             aria-label={`Decrease ${label}`}
-            className="w-9 h-9 shrink-0 rounded-xl glass-btn flex items-center justify-center text-ink-soft active:scale-90 transition-transform"
+            className="w-11 h-11 shrink-0 rounded-xl bg-paper-200 border border-border-subtle flex items-center justify-center text-ink-soft active:scale-90 transition-transform"
           >
-            <Minus size={15} />
+            <Minus size={17} />
           </button>
         )}
 
-        <div className="relative h-9 flex-1 flex items-center">
+        <div className="relative h-11 flex-1 flex items-center">
           <div
-            className="absolute inset-x-0 h-3 rounded-full bg-white/40"
+            className="absolute inset-x-0 h-3 rounded-full bg-paper-400"
             style={{ boxShadow: 'inset 0 1px 2px rgba(120,100,70,0.2), inset 0 -1px 0 rgba(255,255,255,0.6)' }}
           />
           <div
@@ -92,9 +92,9 @@ function Slider({
             style={{ margin: 0 }}
           />
           <div
-            className="absolute w-7 h-7 rounded-full"
+            className="absolute w-8 h-8 rounded-full"
             style={{
-              left: `calc(${pct}% - 14px)`,
+              left: `calc(${pct}% - 16px)`,
               pointerEvents: 'none',
               background: 'linear-gradient(180deg, #ffffff 0%, #F2EDE4 100%)',
               boxShadow:
@@ -107,9 +107,9 @@ function Slider({
           <button
             onClick={() => onStep(1)}
             aria-label={`Increase ${label}`}
-            className="w-9 h-9 shrink-0 rounded-xl glass-btn flex items-center justify-center text-ink-soft active:scale-90 transition-transform"
+            className="w-11 h-11 shrink-0 rounded-xl bg-paper-200 border border-border-subtle flex items-center justify-center text-ink-soft active:scale-90 transition-transform"
           >
-            <Plus size={15} />
+            <Plus size={17} />
           </button>
         )}
       </div>
@@ -132,9 +132,9 @@ function QuickAction({ onClick, label, disabled, children }: QuickActionProps) {
       disabled={disabled}
       aria-label={label}
       className={`
-        flex flex-col items-center justify-center gap-1 h-[58px] rounded-2xl text-[11px] font-medium
-        transition-all glass-btn
-        ${disabled ? 'opacity-35 cursor-not-allowed text-ink-faint' : 'text-ink-soft hover:text-ink'}
+        flex flex-col items-center justify-center gap-1 h-16 rounded-2xl text-[11px] font-medium
+        transition-all bg-paper-200 border border-border-subtle
+        ${disabled ? 'opacity-35 cursor-not-allowed text-ink-faint' : 'text-ink-soft hover:text-ink hover:bg-paper-300'}
       `}
     >
       {children}
@@ -218,7 +218,8 @@ export function ControlPanel({
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.4 }}
             onDragEnd={handleDragEnd}
-            className="glass-strong fixed inset-x-0 bottom-0 z-50 rounded-t-[28px] px-5 pt-2 pb-safe pointer-events-auto max-w-lg mx-auto"
+            className="paper-card-strong fixed inset-x-0 bottom-0 z-50 rounded-t-[28px] px-5 pt-2 pointer-events-auto max-w-lg mx-auto max-h-[85dvh] overflow-y-auto no-scrollbar"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
             role="dialog"
             aria-label="Image adjustments"
           >
@@ -231,7 +232,7 @@ export function ControlPanel({
             <div className="flex items-center justify-between mb-4 px-0.5">
               <h2 className="text-[15px] font-semibold text-ink tracking-tight">Adjust image</h2>
               {locked && (
-                <span className="flex items-center gap-1.5 text-[11px] font-medium text-ink-soft px-2.5 py-1 rounded-full bg-white/45">
+                <span className="flex items-center gap-1.5 text-[11px] font-medium text-ink-soft px-2.5 py-1 rounded-full bg-paper-200 border border-border-subtle">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                   Locked
                 </span>

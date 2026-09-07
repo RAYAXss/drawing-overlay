@@ -45,9 +45,6 @@ export interface CameraState {
   capabilities: CameraCapabilities;
 }
 
-/** Discrete zoom presets exposed in the UI. */
-export const ZOOM_PRESETS = [0.5, 1, 2] as const;
-
 const DEFAULT_CAPS: CameraCapabilities = {
   nativeZoom: false,
   zoomMin: 1,
@@ -217,6 +214,13 @@ export function useCamera() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const trackRef = useRef<MediaStreamTrack | null>(null);
+  // The live stream kept in state so the <video> element can bind to it
+  // reactively. This fixes the "black screen on first start" bug: on the very
+  // first activation the <video> is mounted the same render that `active`
+  // flips true, so imperatively setting srcObject inside openStream could race
+  // ahead of the element existing. Binding via an effect guarantees the stream
+  // attaches once the element is in the DOM.
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   // Discovered rear lenses (populated after first grant) and which one is live.
   const rearCamsRef = useRef<{ main: RearCamera | null; wide: RearCamera | null }>({
@@ -242,10 +246,25 @@ export function useCamera() {
       streamRef.current = null;
     }
     trackRef.current = null;
+    setStream(null);
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
   }, []);
+
+  // Bind whatever stream is live to the <video> element. Runs after every
+  // render, so it also covers the first-activation case where the element
+  // only just mounted. play() is best-effort (autoplay policies may defer it).
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    if (el.srcObject !== stream) {
+      el.srcObject = stream;
+    }
+    if (stream) {
+      el.play().catch(() => {/* autoplay race — non-fatal, retried on interaction */});
+    }
+  }, [stream]);
 
   /**
    * Open a stream. `deviceId`, when provided, targets a specific lens; otherwise
@@ -291,6 +310,10 @@ export function useCamera() {
     const track = stream.getVideoTracks()[0] ?? null;
     trackRef.current = track;
 
+    // Publish the stream to state; the binding effect attaches it to the
+    // <video> element once that element is mounted. Also bind immediately if
+    // the element already exists (lens switch / facing change).
+    setStream(stream);
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
       await videoRef.current.play().catch(() => {/* autoplay race — non-fatal */});
