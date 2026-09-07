@@ -110,17 +110,17 @@ export function ImageUploader({ onFile, fileInputRef }: Props) {
       {/* Floating paper scraps — desktop only */}
       <motion.div
         aria-hidden
-        className="hidden sm:block pointer-events-none absolute w-24 h-28 rounded-sm bg-paper-100 border border-border-subtle"
-        style={{ top: '18%', left: '10%', boxShadow: 'var(--card-shadow)', rotate: '-8deg' }}
+        className="pointer-events-none absolute w-12 h-14 sm:w-24 sm:h-28 rounded-sm bg-paper-100 border border-border-subtle"
+        style={{ top: '12%', left: '6%', boxShadow: 'var(--card-shadow)', rotate: '-8deg' }}
         animate={{ y: [0, -12, 0] }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
         aria-hidden
-        className="hidden sm:block pointer-events-none absolute w-20 h-24 rounded-sm bg-paper-50 border border-border-subtle"
-        style={{ bottom: '16%', right: '9%', boxShadow: 'var(--card-shadow)', rotate: '7deg' }}
+        className="pointer-events-none absolute w-12 h-14 sm:w-24 sm:h-28 rounded-sm bg-paper-50 border border-border-subtle"
+        style={{ bottom: '12%', right: '6%', boxShadow: 'var(--card-shadow)', rotate: '7deg' }}
         animate={{ y: [0, -14, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
       />
 
       {/* Header — compact */}
